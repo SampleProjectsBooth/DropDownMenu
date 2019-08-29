@@ -43,11 +43,13 @@
 {
     if (_menuSources == nil) {
         NSMutableArray *array = [NSMutableArray arrayWithCapacity:4];
-        NSString *path = [[NSBundle mainBundle] pathForResource:@"icon.png" ofType:nil];
         for (NSInteger i=0; i<5; i++) {
             SPDropItem *item = [[SPDropItem alloc] init];
             item.title = [NSString stringWithFormat:@"测试_%d", (int)i];
-            item.icon = [UIImage imageWithContentsOfFile:path];
+            [item setImage:[self iconWithName:@"icon.png"] forState:SPDropItemStateNormal];
+            [item setImage:[self iconWithName:@"icon_HL.png"] forState:SPDropItemStateSelected];
+            [item setTitleColor:[UIColor whiteColor] forState:SPDropItemStateNormal];
+            [item setTitleColor:[UIColor colorWithRed:(26/255.0) green:(173/255.0) blue:(25/255.0) alpha:1.0] forState:SPDropItemStateSelected];
             if (i == 0) {
                 item.selected = YES;
             }
@@ -83,6 +85,16 @@
 
 - (IBAction)rightBottomOnClick:(id)sender {
     [SPDropMenu showInView:sender items:[self createMenuSource]];
+}
+
+#pragma mark - private
+- (UIImage *)iconWithName:(NSString *)name
+{
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+    if (path) {
+        return [UIImage imageWithContentsOfFile:path];
+    }
+    return nil;
 }
 
 @end
