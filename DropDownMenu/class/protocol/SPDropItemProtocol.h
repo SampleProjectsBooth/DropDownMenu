@@ -17,8 +17,8 @@ typedef void(^SPDropItemHandler)(id <SPDropItemProtocol> item);
 
 @required
 @property (nonatomic, readonly) UIView *displayView;
-
-@property (nonatomic, copy) SPDropItemHandler handler;
+@property (nonatomic, assign, getter=isSelected) BOOL selected;
+@property (nonatomic, copy, nullable) SPDropItemHandler handler;
 
 @end
 

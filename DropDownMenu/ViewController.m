@@ -15,6 +15,8 @@
 
 @property (weak, nonatomic) IBOutlet UIButton *rightBottomButton;
 
+@property (nonatomic, strong) NSArray *menuSources;
+
 @end
 
 @implementation ViewController
@@ -39,8 +41,24 @@
 #pragma mark - 创建菜单列表
 - (NSArray <id <SPDropItemProtocol>>*)createMenuSource
 {
-     [[SPDropItem alloc] init];
-    return nil;
+    if (_menuSources == nil) {
+        NSMutableArray *array = [NSMutableArray arrayWithCapacity:4];
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"icon.png" ofType:nil];
+        for (NSInteger i=0; i<5; i++) {
+            SPDropItem *item = [[SPDropItem alloc] init];
+            item.title = [NSString stringWithFormat:@"测试_%d", (int)i];
+            item.icon = [UIImage imageWithContentsOfFile:path];
+            if (i == 0) {
+                item.selected = YES;
+            }
+            item.handler = ^(SPDropItem * _Nonnull item) {
+                NSLog(@"onClick %@", item.title);
+            };
+            [array addObject:item];
+        }
+        _menuSources = [array copy];
+    }
+    return _menuSources;
 }
 
 #pragma mark - 手势点击事件
