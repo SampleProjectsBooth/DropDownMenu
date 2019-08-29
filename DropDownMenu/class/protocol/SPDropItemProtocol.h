@@ -6,7 +6,7 @@
 //  Copyright © 2019 SampleProjectsBooth. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 @protocol SPDropItemProtocol;
@@ -15,6 +15,7 @@ typedef void(^SPDropItemHandler)(id <SPDropItemProtocol> item);
 
 @protocol SPDropItemProtocol <NSObject>
 
+@required
 @property (nonatomic, readonly) UIView *displayView;
 
 @property (nonatomic, copy) SPDropItemHandler handler;

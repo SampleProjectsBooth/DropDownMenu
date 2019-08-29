@@ -114,10 +114,18 @@
 		C7CFB32B2317A7C70085836F /* main */ = {
 			isa = PBXGroup;
 			children = (
+				C7CFB32F2317AEE90085836F /* subView */,
 				C7CFB3242317A5930085836F /* SPDropMainMenu.h */,
 				C7CFB3252317A5930085836F /* SPDropMainMenu.m */,
 			);
 			path = main;
+			sourceTree = "<group>";
+		};
+		C7CFB32F2317AEE90085836F /* subView */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = subView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

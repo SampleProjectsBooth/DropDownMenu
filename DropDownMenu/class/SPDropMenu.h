@@ -13,8 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SPDropMenu : NSObject
 
++ (BOOL)isOnShow;
+
 + (void)showInView:(UIView *)view items:(NSArray <id <SPDropItemProtocol>>*)items;
-+ (void)showInPoint:(CGPoint)point items:(NSArray <id <SPDropItemProtocol>>*)items;
++ (void)showFromPoint:(CGPoint)point items:(NSArray <id <SPDropItemProtocol>>*)items;
 
 + (void)dismiss;
 

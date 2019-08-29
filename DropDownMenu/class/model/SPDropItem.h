@@ -13,6 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SPDropItem : NSObject <SPDropItemProtocol>
 
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, strong) UIImage *icon;
+@property (nonatomic, assign, getter=isSelected) BOOL selected;
+
 @end
 
 NS_ASSUME_NONNULL_END
