@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		053885C72317BDC400B23524 /* SPBaseCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 053885C62317BDC400B23524 /* SPBaseCollectionViewCell.m */; };
 		C7CFB30D2317A1710085836F /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C7CFB30C2317A1710085836F /* AppDelegate.m */; };
 		C7CFB3102317A1710085836F /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C7CFB30F2317A1710085836F /* ViewController.m */; };
 		C7CFB3132317A1710085836F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C7CFB3112317A1710085836F /* Main.storyboard */; };
@@ -19,6 +20,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		053885C52317BDC400B23524 /* SPBaseCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPBaseCollectionViewCell.h; sourceTree = "<group>"; };
+		053885C62317BDC400B23524 /* SPBaseCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SPBaseCollectionViewCell.m; sourceTree = "<group>"; };
 		C7CFB3082317A1710085836F /* DropDownMenu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DropDownMenu.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C7CFB30B2317A1710085836F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		C7CFB30C2317A1710085836F /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -49,6 +52,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		053885C42317BDB700B23524 /* subView */ = {
+			isa = PBXGroup;
+			children = (
+				053885C52317BDC400B23524 /* SPBaseCollectionViewCell.h */,
+				053885C62317BDC400B23524 /* SPBaseCollectionViewCell.m */,
+			);
+			name = subView;
+			path = DropDownMenu/class/subView;
+			sourceTree = SOURCE_ROOT;
+		};
 		C7CFB2FF2317A1710085836F = {
 			isa = PBXGroup;
 			children = (
@@ -114,18 +127,11 @@
 		C7CFB32B2317A7C70085836F /* main */ = {
 			isa = PBXGroup;
 			children = (
-				C7CFB32F2317AEE90085836F /* subView */,
+				053885C42317BDB700B23524 /* subView */,
 				C7CFB3242317A5930085836F /* SPDropMainMenu.h */,
 				C7CFB3252317A5930085836F /* SPDropMainMenu.m */,
 			);
 			path = main;
-			sourceTree = "<group>";
-		};
-		C7CFB32F2317AEE90085836F /* subView */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = subView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -201,6 +207,7 @@
 			files = (
 				C7CFB32E2317A8560085836F /* SPDropMenu.m in Sources */,
 				C7CFB3262317A5930085836F /* SPDropMainMenu.m in Sources */,
+				053885C72317BDC400B23524 /* SPBaseCollectionViewCell.m in Sources */,
 				C7CFB3102317A1710085836F /* ViewController.m in Sources */,
 				C7CFB31B2317A1730085836F /* main.m in Sources */,
 				C7CFB32A2317A5E30085836F /* SPDropItem.m in Sources */,

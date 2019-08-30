@@ -7,10 +7,17 @@
 //
 
 #import "SPDropMainMenu.h"
+#import "SPBaseCollectionViewCell.h"
 
-@interface SPDropMainMenu ()
+@interface SPDropMainMenu () <UICollectionViewDelegate, UICollectionViewDataSource>
 
-@property (nonatomic, readonly) NSMutableArray<id <SPDropItemProtocol>> *m_items;
+@property (nonatomic, strong) NSMutableArray<id <SPDropItemProtocol>> *m_items;
+
+@property (nonatomic, weak) UIView *containView;
+
+@property (nonatomic, weak) UICollectionView *MyCollectView;
+
+@property (nonatomic, assign) CGFloat margin;
 
 @end
 
@@ -46,6 +53,7 @@
 - (void)customInit
 {
     _m_items = [[NSMutableArray alloc] init];
+    _margin = 10.f;
 }
 
 /**
@@ -110,6 +118,72 @@
 - (void)dismissWithAnimated:(BOOL)animated
 {
     
+}
+
+#pragma mark - Private Methods
+#pragma mark 创建视图
+- (void)_createContainView
+{
+    UIView *aView = [[UIView alloc] initWithFrame:self.frame];
+    [self addSubview:aView];
+    self.containView = aView;
+    
+    UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:self.frame collectionViewLayout:flowLayout];
+    collectionView.delegate = self;
+    collectionView.dataSource = self;
+    [self.containView addSubview:collectionView];
+    self.MyCollectView = collectionView;
+    
+    [self.MyCollectView registerClass:[SPBaseCollectionViewCell class] forCellWithReuseIdentifier:[SPBaseCollectionViewCell identifier]];
+    
+}
+
+#pragma mark 计算高度
+- (void)_calculateTotalHeight
+{
+    CGFloat height = 0.f;
+    for (id<SPDropItemProtocol>obj in self.items) {
+        CGFloat subViewHeight = CGRectGetHeight(obj.displayView.frame);
+        height += subViewHeight;
+    }
+}
+
+#pragma mark - UICollectionViewDelegateFlowLayout
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    id<SPDropItemProtocol>obj = [self.items objectAtIndex:indexPath.row];
+    return obj.displayView.frame.size;
+}
+
+#pragma mark - UICollectionViewDelegate
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    id<SPDropItemProtocol>obj = [self.items objectAtIndex:indexPath.row];
+    obj.handler(obj);
+}
+
+#pragma mark - UICollectionViewDataSource
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
+{
+    return self.items.count;
+}
+
+// The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
+- (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *identifier = [SPBaseCollectionViewCell identifier];
+    SPBaseCollectionViewCell *cell = (SPBaseCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
+    
+    id<SPDropItemProtocol>obj = [self.items objectAtIndex:indexPath.row];
+    
+    for (UIView *subView in cell.contentView.subviews) {
+        [subView removeFromSuperview];
+    }
+    
+    [cell.contentView addSubview:obj.displayView];
+    
+    return cell;
 }
 
 @end
