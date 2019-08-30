@@ -45,6 +45,7 @@
 
 - (void)customInit
 {
+    _autoDismiss = YES;
     _m_items = [[NSMutableArray alloc] init];
 }
 

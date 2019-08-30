@@ -14,6 +14,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SPDropMainMenu : UIView
 
 /**
+ 自动收起 默认YES
+ */
+@property (nonatomic, assign, getter=isAutoDismiss) BOOL autoDismiss;
+
+/**
  添加数据源
  */
 - (void)addItem:(id <SPDropItemProtocol>)item;
