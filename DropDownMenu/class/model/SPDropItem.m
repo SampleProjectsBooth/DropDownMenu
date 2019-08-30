@@ -10,22 +10,22 @@
 #import <CoreText/CoreText.h>
 
 @interface SPDropItem ()
-
+{
+    BOOL _selected;
+    UIView *_displayView;
+}
 @property (nonatomic, strong) NSMutableDictionary *titleColorDict;
 @property (nonatomic, strong) NSMutableDictionary *imageDict;
-
-@property (nonatomic, strong) UIView *displayView;
 
 @property (nonatomic, weak) UIImageView *imageView;
 @property (nonatomic, weak) UILabel *textLabel;
 
-@property (nonatomic, assign) BOOL overwriteSelected;
 
 @end
 
 @implementation SPDropItem
 
-@synthesize handler, selected;
+@synthesize tapHandler, doubleTapHandler, longPressHandler;
 
 - (instancetype)init
 {
@@ -56,8 +56,8 @@
 
 - (void)setSelected:(BOOL)selected
 {
-    if (_overwriteSelected != selected) {
-        _overwriteSelected = selected;
+    if (_selected != selected) {
+        _selected = selected;
         SPDropItemState state = SPDropItemStateNormal;
         if (selected) {
             state = SPDropItemStateSelected;
@@ -76,7 +76,7 @@
 
 - (BOOL)isSelected
 {
-    return _overwriteSelected;
+    return _selected;
 }
 
 - (UIView *)displayView

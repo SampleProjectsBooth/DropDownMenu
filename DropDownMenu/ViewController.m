@@ -53,7 +53,7 @@
             if (i == 0) {
                 item.selected = YES;
             }
-            item.handler = ^(SPDropItem * _Nonnull item) {
+            item.tapHandler = ^(SPDropItem * _Nonnull item) {
                 NSLog(@"onClick %@", item.title);
             };
             [array addObject:item];
