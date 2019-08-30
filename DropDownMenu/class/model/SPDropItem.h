@@ -11,11 +11,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, SPDropItemState) {
+    SPDropItemStateNormal,
+    SPDropItemStateSelected,
+};
+
 @interface SPDropItem : NSObject <SPDropItemProtocol>
 
 @property (nonatomic, copy) NSString *title;
-@property (nonatomic, strong) UIImage *icon;
-@property (nonatomic, assign, getter=isSelected) BOOL selected;
+- (void)setTitleColor:(nullable UIColor *)color forState:(SPDropItemState)state;
+- (void)setImage:(nullable UIImage *)image forState:(SPDropItemState)state;
 
 @end
 

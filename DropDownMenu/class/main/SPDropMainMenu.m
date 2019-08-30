@@ -52,6 +52,7 @@
 
 - (void)customInit
 {
+    _autoDismiss = YES;
     _m_items = [[NSMutableArray alloc] init];
     _margin = 10.f;
 }

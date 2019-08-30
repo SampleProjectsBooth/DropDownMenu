@@ -11,14 +11,18 @@
 NS_ASSUME_NONNULL_BEGIN
 @protocol SPDropItemProtocol;
 
-typedef void(^SPDropItemHandler)(id <SPDropItemProtocol> item);
+typedef void(^SPDropItemTapHandler)(id <SPDropItemProtocol> item);
+typedef void(^SPDropItemDoubleTapHandler)(id <SPDropItemProtocol> item);
+typedef void(^SPDropItemLongPressHandler)(id <SPDropItemProtocol> item);
 
 @protocol SPDropItemProtocol <NSObject>
 
 @required
 @property (nonatomic, readonly) UIView *displayView;
-
-@property (nonatomic, copy) SPDropItemHandler handler;
+@property (nonatomic, assign, getter=isSelected) BOOL selected;
+@property (nonatomic, copy, nullable) SPDropItemTapHandler tapHandler;
+@property (nonatomic, copy, nullable) SPDropItemDoubleTapHandler doubleTapHandler;
+@property (nonatomic, copy, nullable) SPDropItemLongPressHandler longPressHandler;
 
 @end
 
