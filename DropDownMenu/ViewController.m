@@ -25,9 +25,16 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"leftTopButton" style:UIBarButtonItemStylePlain target:self action:@selector(leftTopOnClick:)];
+    UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [leftButton setTitle:@"leftTopButton" forState:UIControlStateNormal];
+    [leftButton addTarget:self action:@selector(leftTopOnClick:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
     self.navigationItem.leftBarButtonItem = leftBarButtonItem;
-    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"rightTopButton" style:UIBarButtonItemStylePlain target:self action:@selector(leftTopOnClick:)];
+    
+    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [rightButton setTitle:@"rightTopButton" forState:UIControlStateNormal];
+    [rightButton addTarget:self action:@selector(leftTopOnClick:) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
     self.navigationItem.rightBarButtonItem = rightBarButtonItem;
     
     /** 单击的 Recognizer */
