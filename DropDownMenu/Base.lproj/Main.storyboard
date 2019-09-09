@@ -51,10 +51,23 @@
                                     <action selector="leftBottomOnClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Z0p-nN-6BE"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CaA-oM-Tdr">
+                                <rect key="frame" x="30" y="107" width="46" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="46" id="PdM-Ha-2aT"/>
+                                    <constraint firstAttribute="height" constant="30" id="lnX-AK-XLg"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="testLeftAndTopBottomOnClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="B7J-7y-uVb"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="CaA-oM-Tdr" firstAttribute="top" secondItem="BTG-Qd-oAC" secondAttribute="bottom" constant="19" id="2SP-ZL-Ekn"/>
                             <constraint firstItem="uqM-P9-WLW" firstAttribute="top" secondItem="XUe-TD-L09" secondAttribute="bottom" constant="10" id="A1I-76-SVd"/>
+                            <constraint firstItem="CaA-oM-Tdr" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="COZ-Jh-H2W"/>
                             <constraint firstAttribute="trailingMargin" secondItem="Pvc-5q-cXO" secondAttribute="trailing" constant="10" id="emz-eS-jkH"/>
                             <constraint firstItem="uqM-P9-WLW" firstAttribute="top" secondItem="Pvc-5q-cXO" secondAttribute="bottom" constant="10" id="rea-3k-9Bf"/>
                             <constraint firstItem="XUe-TD-L09" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="10" id="wpv-0g-Kfp"/>

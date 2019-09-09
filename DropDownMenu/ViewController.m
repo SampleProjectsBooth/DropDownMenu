@@ -87,6 +87,10 @@
     [SPDropMenu showInView:sender items:[self createMenuSource]];
 }
 
+- (IBAction)testLeftAndTopBottomOnClick:(id)sender
+{
+    [SPDropMenu showInView:sender items:[self createMenuSource]];
+}
 #pragma mark - private
 - (UIImage *)iconWithName:(NSString *)name
 {

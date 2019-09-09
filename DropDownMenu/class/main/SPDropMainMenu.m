@@ -9,6 +9,14 @@
 #import "SPDropMainMenu.h"
 #import "SPBaseCollectionViewCell.h"
 
+typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
+{
+    SPDropMainMenuDirectionTop = 0,
+    SPDropMainMenuDirectionLeft,
+    SPDropMainMenuDirectionBottom,
+    SPDropMainMenuDirectionRight,
+};
+
 @interface SPDropMainMenu () <UICollectionViewDelegate, UICollectionViewDataSource>
 
 @property (nonatomic, strong) NSMutableArray<id <SPDropItemProtocol>> *m_items;
@@ -18,6 +26,12 @@
 @property (nonatomic, weak) UICollectionView *MyCollectView;
 
 @property (nonatomic, assign) CGFloat margin;
+
+@property (nonatomic, assign) CGFloat arrowHeight;
+
+@property (nonatomic, assign) SPDropMainMenuDirection menuDirection;
+
+@property (nonatomic, assign) CGPoint arrowPoint;
 
 @end
 
@@ -55,6 +69,9 @@
     _autoDismiss = YES;
     _m_items = [[NSMutableArray alloc] init];
     _margin = 10.f;
+    _arrowHeight = 10.f;
+    self.backgroundColor = [UIColor clearColor];
+    [self _createContainView];
 }
 
 /**
@@ -102,6 +119,39 @@
 - (void)showInView:(UIView *)view animated:(BOOL)animated
 {
     
+    self.backgroundColor = [UIColor clearColor];
+    
+    if ([view isKindOfClass:[UIView class]]) {
+        
+        self.backgroundColor = [UIColor clearColor];
+        
+        [[UIApplication sharedApplication].keyWindow bringSubviewToFront:view];
+        
+        [[UIApplication sharedApplication].keyWindow insertSubview:self belowSubview:view];
+
+        CGRect rect = [self _judgeMenuDirection:view];
+        
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            self.frame = (CGRect){rect.origin.x, CGRectGetMaxY(rect), CGRectGetWidth(rect), 1.f};
+        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+            self.frame = (CGRect){rect.origin, CGRectGetWidth(rect), 1.f};
+        }
+        self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), 1.f);
+
+
+        [UIView animateWithDuration:.25f animations:^{
+            
+            self.frame = rect;
+            
+            [self _calculateArrowPointFromShowView:view];
+
+            [self _drawCircleView:rect];
+            
+        } completion:^(BOOL finished) {
+
+        }];
+
+    }
 }
 
 #pragma mark - hidden
@@ -118,19 +168,38 @@
  */
 - (void)dismissWithAnimated:(BOOL)animated
 {
-    
+    if (animated) {
+        CGRect selfRect = CGRectZero;
+        CGRect containViewF = self.containView.frame;
+        containViewF.size.height = 1.f;
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            selfRect = (CGRect){self.frame.origin.x, CGRectGetMaxY(self.frame), CGRectGetWidth(self.frame), 1.f};
+        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+            selfRect = (CGRect){self.frame.origin, CGRectGetWidth(self.frame), 1.f};
+        }
+        [UIView animateWithDuration:.25f animations:^{
+            self.frame = selfRect;
+            self.containView.frame = containViewF;
+        } completion:^(BOOL finished) {
+            [self removeFromSuperview];
+        }];
+    } else {
+        [self removeFromSuperview];
+    }
 }
 
 #pragma mark - Private Methods
 #pragma mark 创建视图
 - (void)_createContainView
 {
-    UIView *aView = [[UIView alloc] initWithFrame:self.frame];
+    
+    UIView *aView = [[UIView alloc] initWithFrame:CGRectZero];
     [self addSubview:aView];
     self.containView = aView;
     
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
-    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:self.frame collectionViewLayout:flowLayout];
+    flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:flowLayout];
     collectionView.delegate = self;
     collectionView.dataSource = self;
     [self.containView addSubview:collectionView];
@@ -140,14 +209,166 @@
     
 }
 
+#pragma mark 圆角边
+- (void)_drawCircleView:(CGRect)rect
+{
+    CGSize cornerRadii = CGSizeMake(5.f, 5.f);
+    
+    CGFloat startY = 0.f;
+    CGRect aRect = CGRectMake(0.f, self. arrowHeight, CGRectGetWidth(rect), CGRectGetHeight(rect) - self. arrowHeight);
+    if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+        aRect.origin.y = 0.f;
+        startY = self.arrowHeight;
+    }
+    self.containView.frame = aRect;
+    
+    self.containView.backgroundColor = [UIColor blackColor];
+    
+    CGPoint arrowP = [self convertPoint:self.arrowPoint toView:self.containView];
+
+    UIBezierPath * maskPath = [UIBezierPath bezierPath];
+    
+    /** 起始点 */
+    [maskPath moveToPoint:CGPointMake(cornerRadii.width, startY)];
+    /** 第一个圆角 */
+    [maskPath addQuadCurveToPoint:CGPointMake(0.f, cornerRadii.height + startY) controlPoint:CGPointMake(0.f, startY)];
+    /** 左边竖线 */
+    [maskPath addLineToPoint:CGPointMake(0.f, CGRectGetHeight(self.containView.frame) - self.margin - cornerRadii.height)];
+    /** 第二个圆角 */
+    [maskPath addQuadCurveToPoint:CGPointMake(cornerRadii.width, CGRectGetHeight(self.containView.frame) - self.margin) controlPoint:CGPointMake(0.f, CGRectGetHeight(self.containView.frame) - self.margin)];
+    if (self.menuDirection == SPDropMainMenuDirectionTop) {
+        /** 画三角形 */
+        [maskPath addLineToPoint:CGPointMake(arrowP.x , CGRectGetHeight(self.containView.frame) - self.margin)];
+        /** 尖点 */
+        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, arrowP.y)];
+        /** 画三角形 */
+        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight*2, CGRectGetHeight(self.containView.frame) - self.margin)];
+    }
+    /** 底部横线 */
+    [maskPath addLineToPoint:CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, CGRectGetHeight(self.containView.frame) - self.margin)];
+    /** 第三个圆角 */
+    [maskPath addQuadCurveToPoint:CGPointMake(CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame) - self.margin - cornerRadii.height) controlPoint:CGPointMake(CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame) - self.margin)];
+    /** 右边竖线 */
+    [maskPath addLineToPoint:CGPointMake(CGRectGetWidth(self.containView.frame), cornerRadii.height + startY)];
+    /** 第四个圆角 */
+    [maskPath addQuadCurveToPoint:CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, startY) controlPoint:CGPointMake(CGRectGetWidth(self.containView.frame), startY)];
+    if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+        /** 画三角形 */
+        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight*2, startY)];
+        /** 尖点 */
+        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, arrowP.y)];
+        /** 画三角形 */
+        [maskPath addLineToPoint:CGPointMake(arrowP.x, startY)];
+    }
+    /** 闭合 */
+    [maskPath closePath];
+    
+    CAShapeLayer * maskLayer = [CAShapeLayer new];
+    maskLayer.frame = self.containView.layer.bounds;
+    maskLayer.path = maskPath.CGPath;
+    self.containView.layer.mask = maskLayer;
+
+    CGRect collectionF = self.containView.bounds;
+    collectionF.size.height -= self.arrowHeight;
+    collectionF.origin.y = startY;
+    self.MyCollectView.frame = collectionF;
+
+}
+
+#pragma mark 创建箭头视图
+- (void)_calculateArrowPointFromShowView:(UIView *)showView
+{
+    CGPoint centerPoint = CGPointZero;
+    CGFloat width = self.arrowHeight * 2;
+    if (self.menuDirection == SPDropMainMenuDirectionTop) {
+        centerPoint = CGPointMake(CGRectGetWidth(showView.bounds)/2 - width/2, 0.f);
+    } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+        centerPoint = CGPointMake(CGRectGetWidth(showView.bounds)/2 - width/2, CGRectGetHeight(showView.frame));
+    }
+    centerPoint = [showView convertPoint:centerPoint toView:[UIApplication sharedApplication].keyWindow];
+    
+    centerPoint = [[UIApplication sharedApplication].keyWindow convertPoint:centerPoint toView:self];
+    self.arrowPoint = centerPoint;
+}
+
 #pragma mark 计算高度
-- (void)_calculateTotalHeight
+- (CGFloat)_calculateTotalHeight
 {
     CGFloat height = 0.f;
     for (id<SPDropItemProtocol>obj in self.items) {
         CGFloat subViewHeight = CGRectGetHeight(obj.displayView.frame);
         height += subViewHeight;
     }
+    return height;
+}
+
+- (CGFloat)_calculateMaxHeight
+{
+    CGFloat height = 0.f;
+    for (id<SPDropItemProtocol>obj in self.items) {
+        CGFloat subViewHeight = CGRectGetHeight(obj.displayView.frame);
+        height = MAX(height, subViewHeight);
+    }
+    return height;
+}
+
+- (CGFloat)_calculateMaxWidth
+{
+    CGFloat width = 0.f;
+    for (id<SPDropItemProtocol>obj in self.items) {
+        CGFloat subViewWidth = CGRectGetWidth(obj.displayView.frame);
+        width = MAX(width, subViewWidth);
+    }
+    return width;
+}
+
+#pragma mark 判断菜单显示方向
+- (CGRect)_judgeMenuDirection:(UIView *)inView
+{
+    CGRect menuF = CGRectZero;
+    if ([inView isKindOfClass:[UIView class]]) {
+        
+        /** 转换坐标 */
+        CGRect rect = [[UIApplication sharedApplication].keyWindow convertRect:inView.frame toView:[UIApplication sharedApplication].keyWindow];
+        
+        /** 内容大小 */
+        menuF.size = CGSizeMake([self _calculateMaxWidth], [self _calculateTotalHeight] + self.arrowHeight + self.margin);
+        
+        menuF.origin.x = (CGRectGetWidth(rect)/2 - CGRectGetWidth(menuF)/2);
+        
+        /** 屏幕大小 */
+        CGRect mainScreen = [UIScreen mainScreen].bounds;
+        
+        if (CGRectGetHeight(menuF) < (CGRectGetHeight(mainScreen) - CGRectGetMaxY(rect))) {
+            
+            self.menuDirection = SPDropMainMenuDirectionBottom;
+            
+            menuF.origin.y = CGRectGetHeight(inView.frame);
+            
+        } else if (CGRectGetMinY(rect) > CGRectGetHeight(menuF)){
+            
+            self.menuDirection = SPDropMainMenuDirectionTop;
+            
+            menuF.origin.y -= CGRectGetHeight(menuF);
+
+        }
+        
+        CGRect menuRect = [inView convertRect:menuF toView:[UIApplication sharedApplication].keyWindow];
+
+        if (CGRectGetMinX(menuRect) < 0) {
+            menuF.origin.x = 0.f;
+        } else {
+            CGFloat b = CGRectGetMaxX(menuRect) - CGRectGetWidth(mainScreen);
+            if (b > 0) {
+                menuF.origin.x = CGRectGetWidth(inView.frame) - CGRectGetWidth(menuRect);
+            }
+        }
+        
+    } else {
+        NSLog(@"爆炸吧!");
+    }
+    
+    return [inView convertRect:menuF toView:[UIApplication sharedApplication].keyWindow];
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
@@ -161,7 +382,6 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     id<SPDropItemProtocol>obj = [self.items objectAtIndex:indexPath.row];
-    obj.handler(obj);
 }
 
 #pragma mark - UICollectionViewDataSource
