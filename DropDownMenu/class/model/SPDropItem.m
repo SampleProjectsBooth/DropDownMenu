@@ -132,9 +132,10 @@
             x = CGRectGetMaxX(imageView.frame);
             _imageView = imageView;
         }
+        CGFloat viewHeight = MAX(maxIconWidth, textSize.height)+2*margin;
         // title
         {
-            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(x+margin, margin, textSize.width, textSize.height)];
+            UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(x+margin, (viewHeight-textSize.height)/2, textSize.width, textSize.height)];
             label.attributedText = attribString;
             
             SPDropItemState state = self.isSelected ? SPDropItemStateSelected : SPDropItemStateNormal;
@@ -147,7 +148,7 @@
             _textLabel = label;
         }
         
-        view.frame = CGRectMake(0, 0, x+margin, MAX(maxIconWidth, textSize.height)+margin);
+        view.frame = CGRectMake(0, 0, x+margin, viewHeight);
         
         _displayView = view;
     }
