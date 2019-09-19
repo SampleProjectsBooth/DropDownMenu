@@ -131,22 +131,40 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 
         CGRect rect = [self _judgeMenuDirection:view];
         
+        self.frame = rect;
+
+        [self _calculateArrowPointFromShowView:view];
+        
         if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            self.frame = (CGRect){rect.origin.x, CGRectGetMaxY(rect), CGRectGetWidth(rect), 1.f};
+            self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+            self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
         } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-            self.frame = (CGRect){rect.origin, CGRectGetWidth(rect), 1.f};
+            self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+            self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
         }
-        self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), 1.f);
+        [self _drawCircleView];
 
-
+        CGRect a = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
+        CGRect b = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            a.origin.y = CGRectGetHeight(self.frame);
+        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+            b.origin.y = self.margin;
+        }
+        
+        self.containView.backgroundColor = [UIColor blackColor];
+        self.containView.frame = a;
+        self.MyCollectView.frame = b;
+        
+        
         [UIView animateWithDuration:.25f animations:^{
-            
-            self.frame = rect;
-            
-            [self _calculateArrowPointFromShowView:view];
-
-            [self _drawCircleView:rect];
-            
+            if (self.menuDirection == SPDropMainMenuDirectionTop) {
+                self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+                self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+            } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+                self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+                self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+            }
         } completion:^(BOOL finished) {
 
         }];
@@ -169,16 +187,16 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 - (void)dismissWithAnimated:(BOOL)animated
 {
     if (animated) {
-        CGRect selfRect = CGRectZero;
         CGRect containViewF = self.containView.frame;
-        containViewF.size.height = 1.f;
+        CGRect collectionViewF = self.MyCollectView.frame;
         if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            selfRect = (CGRect){self.frame.origin.x, CGRectGetMaxY(self.frame), CGRectGetWidth(self.frame), 1.f};
-        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-            selfRect = (CGRect){self.frame.origin, CGRectGetWidth(self.frame), 1.f};
+            collectionViewF.origin.y = 0.f;
+            containViewF.origin.y = CGRectGetHeight(self.bounds);
         }
+        containViewF.size.height = 0.f;
+        collectionViewF.size.height = 0.f;
         [UIView animateWithDuration:.25f animations:^{
-            self.frame = selfRect;
+            self.MyCollectView.frame = collectionViewF;
             self.containView.frame = containViewF;
         } completion:^(BOOL finished) {
             [self removeFromSuperview];
@@ -210,19 +228,16 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 }
 
 #pragma mark 圆角边
-- (void)_drawCircleView:(CGRect)rect
+- (void)_drawCircleView
 {
     CGSize cornerRadii = CGSizeMake(5.f, 5.f);
     
     CGFloat startY = 0.f;
-    CGRect aRect = CGRectMake(0.f, self. arrowHeight, CGRectGetWidth(rect), CGRectGetHeight(rect) - self. arrowHeight);
     if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-        aRect.origin.y = 0.f;
         startY = self.arrowHeight;
     }
-    self.containView.frame = aRect;
     
-    self.containView.backgroundColor = [UIColor blackColor];
+//    self.containView.backgroundColor = [UIColor blackColor];
     
     CGPoint arrowP = [self convertPoint:self.arrowPoint toView:self.containView];
 
@@ -268,11 +283,6 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     maskLayer.path = maskPath.CGPath;
     self.containView.layer.mask = maskLayer;
 
-    CGRect collectionF = self.containView.bounds;
-    collectionF.size.height -= self.arrowHeight;
-    collectionF.origin.y = startY;
-    self.MyCollectView.frame = collectionF;
-
 }
 
 #pragma mark 创建箭头视图
@@ -286,7 +296,6 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
         centerPoint = CGPointMake(CGRectGetWidth(showView.bounds)/2 - width/2, CGRectGetHeight(showView.frame));
     }
     centerPoint = [showView convertPoint:centerPoint toView:[UIApplication sharedApplication].keyWindow];
-    
     centerPoint = [[UIApplication sharedApplication].keyWindow convertPoint:centerPoint toView:self];
     self.arrowPoint = centerPoint;
 }
