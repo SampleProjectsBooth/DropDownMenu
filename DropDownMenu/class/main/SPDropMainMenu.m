@@ -33,6 +33,8 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 
 @property (nonatomic, assign) CGPoint arrowPoint;
 
+@property (nonatomic, assign) NSUInteger itemNumber;
+
 @end
 
 @implementation SPDropMainMenu
@@ -67,9 +69,15 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 - (void)customInit
 {
     _autoDismiss = YES;
+    
     _m_items = [[NSMutableArray alloc] init];
+    
     _margin = 10.f;
+    
     _arrowHeight = 10.f;
+    
+    _menuDirection = SPDropMainMenuDirectionBottom;
+
     self.backgroundColor = [UIColor clearColor];
     [self _createContainView];
 }
@@ -103,7 +111,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
  */
 - (void)showFromPoint:(CGPoint)point animated:(BOOL)animated
 {
-    
+    [self _showFromFrame:(CGRect){point, CGSizeZero} animated:animated];
 }
 
 /**
@@ -119,56 +127,13 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 - (void)showInView:(UIView *)view animated:(BOOL)animated
 {
     
-    self.backgroundColor = [UIColor clearColor];
-    
     if ([view isKindOfClass:[UIView class]]) {
         
-        self.backgroundColor = [UIColor clearColor];
+        /** 计算点 */
+        CGRect converRect = [[UIApplication sharedApplication].keyWindow convertRect:view.frame fromView:view.superview];
         
-        [[UIApplication sharedApplication].keyWindow bringSubviewToFront:view];
+        [self _showFromFrame:converRect animated:YES];
         
-        [[UIApplication sharedApplication].keyWindow insertSubview:self belowSubview:view];
-
-        CGRect rect = [self _judgeMenuDirection:view];
-        
-        self.frame = rect;
-
-        [self _calculateArrowPointFromShowView:view];
-        
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-            self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
-        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-            self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-            self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
-        }
-        [self _drawCircleView];
-
-        CGRect a = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
-        CGRect b = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            a.origin.y = CGRectGetHeight(self.frame);
-        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-            b.origin.y = self.margin;
-        }
-        
-        self.containView.backgroundColor = [UIColor blackColor];
-        self.containView.frame = a;
-        self.MyCollectView.frame = b;
-        
-        
-        [UIView animateWithDuration:.25f animations:^{
-            if (self.menuDirection == SPDropMainMenuDirectionTop) {
-                self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-                self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
-            } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-                self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-                self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
-            }
-        } completion:^(BOOL finished) {
-
-        }];
-
     }
 }
 
@@ -236,9 +201,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     if (self.menuDirection == SPDropMainMenuDirectionBottom) {
         startY = self.arrowHeight;
     }
-    
-//    self.containView.backgroundColor = [UIColor blackColor];
-    
+        
     CGPoint arrowP = [self convertPoint:self.arrowPoint toView:self.containView];
 
     UIBezierPath * maskPath = [UIBezierPath bezierPath];
@@ -253,11 +216,11 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     [maskPath addQuadCurveToPoint:CGPointMake(cornerRadii.width, CGRectGetHeight(self.containView.frame) - self.margin) controlPoint:CGPointMake(0.f, CGRectGetHeight(self.containView.frame) - self.margin)];
     if (self.menuDirection == SPDropMainMenuDirectionTop) {
         /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x , CGRectGetHeight(self.containView.frame) - self.margin)];
+        [maskPath addLineToPoint:CGPointMake(arrowP.x - self.arrowHeight, CGRectGetHeight(self.containView.frame) - self.margin)];
         /** 尖点 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, arrowP.y)];
+        [maskPath addLineToPoint:CGPointMake(arrowP.x, arrowP.y)];
         /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight*2, CGRectGetHeight(self.containView.frame) - self.margin)];
+        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, CGRectGetHeight(self.containView.frame) - self.margin)];
     }
     /** 底部横线 */
     [maskPath addLineToPoint:CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, CGRectGetHeight(self.containView.frame) - self.margin)];
@@ -269,11 +232,11 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     [maskPath addQuadCurveToPoint:CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, startY) controlPoint:CGPointMake(CGRectGetWidth(self.containView.frame), startY)];
     if (self.menuDirection == SPDropMainMenuDirectionBottom) {
         /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight*2, startY)];
+        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, startY)];
         /** 尖点 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, arrowP.y)];
+        [maskPath addLineToPoint:CGPointMake(arrowP.x, arrowP.y)];
         /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x, startY)];
+        [maskPath addLineToPoint:CGPointMake(arrowP.x - self.arrowHeight, startY)];
     }
     /** 闭合 */
     [maskPath closePath];
@@ -283,21 +246,6 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     maskLayer.path = maskPath.CGPath;
     self.containView.layer.mask = maskLayer;
 
-}
-
-#pragma mark 创建箭头视图
-- (void)_calculateArrowPointFromShowView:(UIView *)showView
-{
-    CGPoint centerPoint = CGPointZero;
-    CGFloat width = self.arrowHeight * 2;
-    if (self.menuDirection == SPDropMainMenuDirectionTop) {
-        centerPoint = CGPointMake(CGRectGetWidth(showView.bounds)/2 - width/2, 0.f);
-    } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-        centerPoint = CGPointMake(CGRectGetWidth(showView.bounds)/2 - width/2, CGRectGetHeight(showView.frame));
-    }
-    centerPoint = [showView convertPoint:centerPoint toView:[UIApplication sharedApplication].keyWindow];
-    centerPoint = [[UIApplication sharedApplication].keyWindow convertPoint:centerPoint toView:self];
-    self.arrowPoint = centerPoint;
 }
 
 #pragma mark 计算高度
@@ -331,53 +279,98 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     return width;
 }
 
-#pragma mark 判断菜单显示方向
-- (CGRect)_judgeMenuDirection:(UIView *)inView
+#pragma mark 计算出菜单视图大小
+- (CGRect)_calculateMenuViewFrameWithConverFrame:(CGRect)converFrame
 {
-    CGRect menuF = CGRectZero;
-    if ([inView isKindOfClass:[UIView class]]) {
-        
-        /** 转换坐标 */
-        CGRect rect = [[UIApplication sharedApplication].keyWindow convertRect:inView.frame toView:[UIApplication sharedApplication].keyWindow];
-        
-        /** 内容大小 */
-        menuF.size = CGSizeMake([self _calculateMaxWidth], [self _calculateTotalHeight] + self.arrowHeight + self.margin);
-        
-        menuF.origin.x = (CGRectGetWidth(rect)/2 - CGRectGetWidth(menuF)/2);
-        
-        /** 屏幕大小 */
-        CGRect mainScreen = [UIScreen mainScreen].bounds;
-        
-        if (CGRectGetHeight(menuF) < (CGRectGetHeight(mainScreen) - CGRectGetMaxY(rect))) {
-            
-            self.menuDirection = SPDropMainMenuDirectionBottom;
-            
-            menuF.origin.y = CGRectGetHeight(inView.frame);
-            
-        } else if (CGRectGetMinY(rect) > CGRectGetHeight(menuF)){
-            
-            self.menuDirection = SPDropMainMenuDirectionTop;
-            
-            menuF.origin.y -= CGRectGetHeight(menuF);
+    CGRect resultRect = CGRectZero;
+    
+    resultRect.origin = converFrame.origin;
+    
+    resultRect.size.width = [self _calculateMaxWidth];
+    
+    resultRect.origin.x -= CGRectGetWidth(resultRect)/2;
 
-        }
-        
-        CGRect menuRect = [inView convertRect:menuF toView:[UIApplication sharedApplication].keyWindow];
-
-        if (CGRectGetMinX(menuRect) < 0) {
-            menuF.origin.x = 0.f;
-        } else {
-            CGFloat b = CGRectGetMaxX(menuRect) - CGRectGetWidth(mainScreen);
-            if (b > 0) {
-                menuF.origin.x = CGRectGetWidth(inView.frame) - CGRectGetWidth(menuRect);
-            }
-        }
-        
-    } else {
-        NSLog(@"爆炸吧!");
+    if (self.itemNumber == 0) {
+        self.itemNumber = self.items.count;
     }
     
-    return [inView convertRect:menuF toView:[UIApplication sharedApplication].keyWindow];
+    for (NSUInteger i = 0; i < self.itemNumber; i ++) {
+        id<SPDropItemProtocol>obj = [self.items objectAtIndex:i];
+        resultRect.size.height += (CGRectGetHeight(obj.displayView.frame)+self.margin);
+    }
+    
+    resultRect.size.height += (self.arrowHeight + self.margin*2);
+
+    if (CGSizeEqualToSize(converFrame.size, CGSizeZero)) {
+        
+    } else {
+        resultRect.origin.y += CGRectGetHeight(converFrame);
+        resultRect.origin.x = converFrame.origin.x;
+    }
+    
+    
+    if (CGRectGetMinX(resultRect) < self.margin) {
+        resultRect.origin.x = self.margin;
+    }
+     
+    if (CGRectGetMaxX(resultRect) > (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin)) {
+        resultRect.origin.x = (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin - CGRectGetWidth(resultRect));
+    }
+    
+    return resultRect;
+}
+
+#pragma mark 展示视图
+- (void)_showFromFrame:(CGRect)frame animated:(BOOL)animated
+{
+    [[UIApplication sharedApplication].keyWindow addSubview:self];
+    
+    CGRect rect = [self _calculateMenuViewFrameWithConverFrame:frame];
+    
+    self.frame = rect;
+
+    if (CGSizeEqualToSize(frame.size, CGSizeZero)) {
+        self.arrowPoint = CGPointMake(CGRectGetWidth(rect)/2, 0.f);
+    } else {
+        CGPoint point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMaxY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
+        self.arrowPoint = point;
+    }
+        
+    if (self.menuDirection == SPDropMainMenuDirectionTop) {
+        self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+        self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+    } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+        self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+        self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+    }
+    
+    [self _drawCircleView];
+
+    CGRect a = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
+    CGRect b = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
+    if (self.menuDirection == SPDropMainMenuDirectionTop) {
+        a.origin.y = CGRectGetHeight(self.frame);
+    } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+        b.origin.y = self.margin;
+    }
+    
+    self.containView.backgroundColor = [UIColor blackColor];
+    self.containView.frame = a;
+    self.MyCollectView.frame = b;
+    
+    
+    [UIView animateWithDuration:.25f animations:^{
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+            self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+            self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
+            self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+        }
+    } completion:^(BOOL finished) {
+
+    }];
+
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
@@ -390,7 +383,15 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 #pragma mark - UICollectionViewDelegate
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<SPDropItemProtocol>obj = [self.items objectAtIndex:indexPath.row];
+    for (id<SPDropItemProtocol>obj in self.items) {
+        obj.selected = NO;
+    }
+    {
+        id<SPDropItemProtocol>obj = [self.items objectAtIndex:indexPath.row];
+        obj.tapHandler(obj);
+        obj.selected = YES;
+        [self dismiss];
+    }
 }
 
 #pragma mark - UICollectionViewDataSource
