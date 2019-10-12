@@ -67,6 +67,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 - (void)customInit
 {
     _autoDismiss = YES;
+    _displayMaxNum = 4;
     _m_items = [[NSMutableArray alloc] init];
     _margin = 10.f;
     _arrowHeight = 10.f;

@@ -19,6 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, getter=isAutoDismiss) BOOL autoDismiss;
 
 /**
+ 显示最大数量 默认4
+ */
+@property (nonatomic, assign) NSUInteger displayMaxNum;
+
+/**
  添加数据源
  */
 - (void)addItem:(id <SPDropItemProtocol>)item;
