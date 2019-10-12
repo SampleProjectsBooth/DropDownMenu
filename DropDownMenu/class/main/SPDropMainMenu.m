@@ -70,6 +70,8 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 {
     _autoDismiss = YES;
     
+    _displayMaxNum = 4;
+    
     _m_items = [[NSMutableArray alloc] init];
     
     _margin = 10.f;
@@ -79,6 +81,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     _menuDirection = SPDropMainMenuDirectionBottom;
 
     self.backgroundColor = [UIColor clearColor];
+    
     [self _createContainView];
 }
 
