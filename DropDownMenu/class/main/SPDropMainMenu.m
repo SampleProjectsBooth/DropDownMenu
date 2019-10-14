@@ -9,13 +9,6 @@
 #import "SPDropMainMenu.h"
 #import "SPBaseCollectionViewCell.h"
 
-typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
-{
-    SPDropMainMenuDirectionTop = 0,
-    SPDropMainMenuDirectionLeft,
-    SPDropMainMenuDirectionBottom,
-    SPDropMainMenuDirectionRight,
-};
 
 @interface SPDropMainMenu () <UICollectionViewDelegate, UICollectionViewDataSource>
 
@@ -29,9 +22,11 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 
 @property (nonatomic, assign) CGFloat arrowHeight;
 
-@property (nonatomic, assign) SPDropMainMenuDirection menuDirection;
-
 @property (nonatomic, assign) CGPoint arrowPoint;
+
+@property (nonatomic, assign) BOOL isShowInView;
+
+@property (nonatomic, assign) CGFloat maxItemWidth;
 
 @end
 
@@ -41,7 +36,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 {
     self = [super initWithCoder:coder];
     if (self) {
-        [self customInit];
+        [self _customInit];
     }
     return self;
 }
@@ -50,7 +45,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 {
     self = [super initWithFrame:frame];
     if (self) {
-        [self customInit];
+        [self _customInit];
     }
     return self;
 }
@@ -59,28 +54,9 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 {
     self = [super init];
     if (self) {
-        [self customInit];
+        [self _customInit];
     }
     return self;
-}
-
-- (void)customInit
-{
-    _autoDismiss = YES;
-    
-    _displayMaxNum = 4;
-    
-    _m_items = [[NSMutableArray alloc] init];
-    
-    _margin = 10.f;
-    
-    _arrowHeight = 10.f;
-    
-    _menuDirection = SPDropMainMenuDirectionBottom;
-
-    self.backgroundColor = [UIColor clearColor];
-    
-    [self _createContainView];
 }
 
 /**
@@ -91,7 +67,6 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     if (item) {
         [self.m_items addObject:item];
     }
-    [self.MyCollectView reloadData];
 }
 
 - (NSArray<id<SPDropItemProtocol>> *)items
@@ -113,6 +88,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
  */
 - (void)showFromPoint:(CGPoint)point animated:(BOOL)animated
 {
+    self.isShowInView = NO;
     [self _showFromFrame:(CGRect){point, CGSizeZero} animated:animated];
 }
 
@@ -128,15 +104,13 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
  */
 - (void)showInView:(UIView *)view animated:(BOOL)animated
 {
+    self.isShowInView = YES;
     
-    if ([view isKindOfClass:[UIView class]]) {
-        
-        /** 计算点 */
-        CGRect converRect = [[UIApplication sharedApplication].keyWindow convertRect:view.frame fromView:view.superview];
-        
-        [self _showFromFrame:converRect animated:YES];
-        
-    }
+    /** 计算点 */
+    CGRect converRect = [[UIApplication sharedApplication].keyWindow convertRect:view.frame fromView:view.superview];
+    
+    [self _showFromFrame:converRect animated:YES];
+
 }
 
 #pragma mark - hidden
@@ -154,17 +128,20 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 - (void)dismissWithAnimated:(BOOL)animated
 {
     if (animated) {
-        CGRect containViewF = self.containView.frame;
-        CGRect collectionViewF = self.MyCollectView.frame;
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            collectionViewF.origin.y = 0.f;
-            containViewF.origin.y = CGRectGetHeight(self.bounds);
+        CGRect tempRect = self.frame;
+        switch (self.menuDirection) {
+            case SPDropMainMenuDirectionTop:
+            {
+                tempRect.origin.y += CGRectGetHeight(tempRect);
+            }
+                break;
+                
+            default:
+                break;
         }
-        containViewF.size.height = 0.f;
-        collectionViewF.size.height = 0.f;
+        tempRect.size.height = 0.f;
         [UIView animateWithDuration:.25f animations:^{
-            self.MyCollectView.frame = collectionViewF;
-            self.containView.frame = containViewF;
+            self.frame = tempRect;
         } completion:^(BOOL finished) {
             [self removeFromSuperview];
         }];
@@ -174,6 +151,28 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 }
 
 #pragma mark - Private Methods
+- (void)_customInit
+{
+    _autoDismiss = YES;
+    
+    _displayMaxNum = 4;
+    
+    _m_items = [[NSMutableArray alloc] init];
+    
+    _margin = 10.f;
+    
+    _arrowHeight = 10.f;
+    
+    _maxItemWidth = 0.f;
+    
+    _menuDirection = SPDropMainMenuDirectionBottom;
+
+    _containerViewbackgroundColor = [UIColor blackColor];
+    
+    self.backgroundColor = [UIColor clearColor];
+    
+}
+
 #pragma mark 创建视图
 - (void)_createContainView
 {
@@ -250,37 +249,6 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 
 }
 
-#pragma mark 计算高度
-- (CGFloat)_calculateTotalHeight
-{
-    CGFloat height = 0.f;
-    for (id<SPDropItemProtocol>obj in self.items) {
-        CGFloat subViewHeight = CGRectGetHeight(obj.displayView.frame);
-        height += subViewHeight;
-    }
-    return height;
-}
-
-- (CGFloat)_calculateMaxHeight
-{
-    CGFloat height = 0.f;
-    for (id<SPDropItemProtocol>obj in self.items) {
-        CGFloat subViewHeight = CGRectGetHeight(obj.displayView.frame);
-        height = MAX(height, subViewHeight);
-    }
-    return height;
-}
-
-- (CGFloat)_calculateMaxWidth
-{
-    CGFloat width = 0.f;
-    for (id<SPDropItemProtocol>obj in self.items) {
-        CGFloat subViewWidth = CGRectGetWidth(obj.displayView.frame);
-        width = MAX(width, subViewWidth);
-    }
-    return width;
-}
-
 #pragma mark 计算出菜单视图大小
 - (CGRect)_calculateMenuViewFrameWithConverFrame:(CGRect)converFrame
 {
@@ -288,7 +256,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     
     resultRect.origin = converFrame.origin;
     
-    resultRect.size.width = [self _calculateMaxWidth];
+    resultRect.size.width = [self maxItemWidth];
     
     resultRect.origin.x -= CGRectGetWidth(resultRect)/2;
 
@@ -333,9 +301,35 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     return resultRect;
 }
 
+#pragma mark 计算视图
+- (void)_calculateItemViews
+{
+    CGFloat totalHeight = 0.f;
+    CGFloat maxHeight = 0.f;
+    _maxItemWidth = 0.f;
+    BOOL isOnlySelect = NO;
+    for (id<SPDropItemProtocol>obj in self.m_items) {
+        maxHeight = MAX(maxHeight, CGRectGetHeight(obj.displayView.frame));
+        _maxItemWidth = MAX(_maxItemWidth, CGRectGetWidth(obj.displayView.frame));
+        totalHeight += CGRectGetHeight(obj.displayView.frame);
+        if (isOnlySelect) {
+            obj.selected  = NO;
+        }
+        if (obj.selected) {
+            isOnlySelect = YES;
+        }
+    }
+}
 #pragma mark 展示视图
 - (void)_showFromFrame:(CGRect)frame animated:(BOOL)animated
 {
+    
+    [self _createContainView];
+
+    [self _calculateItemViews];
+
+    self.clipsToBounds = YES;
+        
     [[UIApplication sharedApplication].keyWindow addSubview:self];
     
     CGRect rect = [self _calculateMenuViewFrameWithConverFrame:frame];
@@ -355,39 +349,45 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
         self.arrowPoint = point;
     }
     
-        
     if (self.menuDirection == SPDropMainMenuDirectionTop) {
         self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
+        self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
     } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
         self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
+        self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
     }
-    
+        
     [self _drawCircleView];
 
-    CGRect a = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
-    CGRect b = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), 0.f);
-    if (self.menuDirection == SPDropMainMenuDirectionTop) {
-        a.origin.y = CGRectGetHeight(self.frame);
-    } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-        b.origin.y = self.margin;
-    }
-    
-    self.containView.backgroundColor = [UIColor blackColor];
-    self.containView.frame = a;
-    self.MyCollectView.frame = b;
-    
-    
-    [UIView animateWithDuration:.25f animations:^{
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
-            self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
-        } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-            self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
-            self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
-        }
-    } completion:^(BOOL finished) {
+    self.containView.backgroundColor = self.containerViewbackgroundColor;
 
-    }];
+    CGRect tempRect = self.frame;
+    
+    if (animated) {
+        CGRect zeroRect = tempRect;
+
+        switch (self.menuDirection) {
+            case SPDropMainMenuDirectionTop:
+            {
+                zeroRect.size.height = 0.f;
+                zeroRect.origin.y += CGRectGetHeight(tempRect);
+            }
+                break;
+            case SPDropMainMenuDirectionBottom:
+            {
+                zeroRect.size.height = 0.f;
+            }
+                break;
+            default:
+                break;
+        }
+        self.frame = zeroRect;
+        
+        __weak typeof(self) weakSelf = self;
+        [UIView animateWithDuration:.25f animations:^{
+            weakSelf.frame = tempRect;
+        }];
+    }
 
 }
 
@@ -432,6 +432,9 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     
     [cell.contentView addSubview:obj.displayView];
     
+    if (obj.selected) {
+        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:(UICollectionViewScrollPositionTop) animated:YES];
+    }
     return cell;
 }
 

@@ -9,6 +9,15 @@
 #import <UIKit/UIKit.h>
 #import "SPDropItem.h"
 
+typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
+{
+    SPDropMainMenuDirectionAllTo = -1,
+    SPDropMainMenuDirectionTop = 0,
+//    SPDropMainMenuDirectionLeft,
+    SPDropMainMenuDirectionBottom = SPDropMainMenuDirectionAllTo,
+//    SPDropMainMenuDirectionRight,
+};
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SPDropMainMenu : UIView
@@ -24,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSUInteger displayMaxNum;
 
 /**
+ 显示位置（上下，默认SPDropMainMenuDirectionAllTo）
+ */
+@property (nonatomic, assign) SPDropMainMenuDirection menuDirection;
+
+/**
  添加数据源
  */
 - (void)addItem:(id <SPDropItemProtocol>)item;
@@ -32,6 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
  数据源集合
  */
 @property (nonatomic, readonly) NSArray<id <SPDropItemProtocol>> *items;
+
+
+/**
+ 背景颜色
+ */
+@property (nonatomic, strong) UIColor *containerViewbackgroundColor;
 
 #pragma mark - show
 
