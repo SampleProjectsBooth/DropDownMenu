@@ -14,7 +14,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     SPDropMainMenuDirectionAllTo = -1,
     SPDropMainMenuDirectionTop = 0,
 //    SPDropMainMenuDirectionLeft,
-    SPDropMainMenuDirectionBottom = SPDropMainMenuDirectionAllTo,
+    SPDropMainMenuDirectionBottom,
 //    SPDropMainMenuDirectionRight,
 };
 
@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSUInteger displayMaxNum;
 
 /**
- 显示位置（上下，默认SPDropMainMenuDirectionAllTo）
+ 显示位置（上下，默认SPDropMainMenuDirectionBottom）
  */
 @property (nonatomic, assign) SPDropMainMenuDirection menuDirection;
 
@@ -46,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
  数据源集合
  */
 @property (nonatomic, readonly) NSArray<id <SPDropItemProtocol>> *items;
-
 
 /**
  背景颜色

@@ -74,6 +74,14 @@
     return [self.m_items mutableCopy];
 }
 
+- (void)setMenuDirection:(SPDropMainMenuDirection)menuDirection
+{
+    if (menuDirection == SPDropMainMenuDirectionAllTo) {
+        menuDirection = SPDropMainMenuDirectionBottom;
+    }
+    _menuDirection = menuDirection;
+}
+
 #pragma mark - show
 
 /**
@@ -271,7 +279,7 @@
     
     resultRect.size.height += (self.arrowHeight + self.margin*2);
 
-    if (CGSizeEqualToSize(converFrame.size, CGSizeZero)) {
+    if (!self.isShowInView) {
         
         if (self.menuDirection == SPDropMainMenuDirectionTop) {
             resultRect.origin.y -= CGRectGetHeight(resultRect);
@@ -389,6 +397,12 @@
         }];
     }
 
+    for (id<SPDropItemProtocol>obj in self.m_items) {
+        if (obj.selected) {
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[self.m_items indexOfObject:obj] inSection:0];
+            [self.MyCollectView scrollToItemAtIndexPath:indexPath atScrollPosition:(UICollectionViewScrollPositionTop) animated:NO];
+        }
+    }
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
@@ -432,9 +446,6 @@
     
     [cell.contentView addSubview:obj.displayView];
     
-    if (obj.selected) {
-        [collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:(UICollectionViewScrollPositionTop) animated:YES];
-    }
     return cell;
 }
 
