@@ -33,8 +33,6 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 
 @property (nonatomic, assign) CGPoint arrowPoint;
 
-@property (nonatomic, assign) NSUInteger itemNumber;
-
 @end
 
 @implementation SPDropMainMenu
@@ -293,11 +291,11 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     
     resultRect.origin.x -= CGRectGetWidth(resultRect)/2;
 
-    if (self.itemNumber == 0) {
-        self.itemNumber = self.items.count;
+    if (self.displayMaxNum == 0) {
+        self.displayMaxNum = self.items.count;
     }
     
-    for (NSUInteger i = 0; i < self.itemNumber; i ++) {
+    for (NSUInteger i = 0; i < self.displayMaxNum; i ++) {
         id<SPDropItemProtocol>obj = [self.items objectAtIndex:i];
         resultRect.size.height += (CGRectGetHeight(obj.displayView.frame)+self.margin);
     }
@@ -306,9 +304,19 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 
     if (CGSizeEqualToSize(converFrame.size, CGSizeZero)) {
         
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            resultRect.origin.y -= CGRectGetHeight(resultRect);
+        }
+        
     } else {
-        resultRect.origin.y += CGRectGetHeight(converFrame);
+        
+        resultRect.origin.y = CGRectGetMaxY(converFrame);
         resultRect.origin.x = converFrame.origin.x;
+        
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            resultRect.origin.y = (CGRectGetMinY(converFrame) - CGRectGetHeight(resultRect));
+        }
+
     }
     
     
@@ -319,6 +327,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     if (CGRectGetMaxX(resultRect) > (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin)) {
         resultRect.origin.x = (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin - CGRectGetWidth(resultRect));
     }
+    
     
     return resultRect;
 }
@@ -334,17 +343,22 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
 
     if (CGSizeEqualToSize(frame.size, CGSizeZero)) {
         self.arrowPoint = CGPointMake(CGRectGetWidth(rect)/2, 0.f);
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            self.arrowPoint = CGPointMake(CGRectGetWidth(rect)/2, CGRectGetHeight(self.frame));
+        }
     } else {
         CGPoint point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMaxY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
+        if (self.menuDirection == SPDropMainMenuDirectionTop) {
+            point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMinY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
+        }
         self.arrowPoint = point;
     }
+    
         
     if (self.menuDirection == SPDropMainMenuDirectionTop) {
-        self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-        self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+        self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
     } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-        self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-        self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+        self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
     }
     
     [self _drawCircleView];
@@ -364,11 +378,11 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     
     [UIView animateWithDuration:.25f animations:^{
         if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-            self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+            self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
+            self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
         } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-            self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(rect)-self.margin);
-            self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(rect), CGRectGetHeight(rect)-self.margin*2);
+            self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
+            self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
         }
     } completion:^(BOOL finished) {
 
