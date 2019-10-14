@@ -91,6 +91,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     if (item) {
         [self.m_items addObject:item];
     }
+    [self.MyCollectView reloadData];
 }
 
 - (NSArray<id<SPDropItemProtocol>> *)items
