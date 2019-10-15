@@ -202,6 +202,7 @@
     UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:flowLayout];
     collectionView.delegate = self;
     collectionView.dataSource = self;
+    collectionView.backgroundColor = [UIColor clearColor];
     [self.containView addSubview:collectionView];
     self.MyCollectView = collectionView;
     
@@ -223,38 +224,128 @@
 
     UIBezierPath * maskPath = [UIBezierPath bezierPath];
     
-    /** 起始点 */
-    [maskPath moveToPoint:CGPointMake(cornerRadii.width, startY)];
-    /** 第一个圆角 */
-    [maskPath addQuadCurveToPoint:CGPointMake(0.f, cornerRadii.height + startY) controlPoint:CGPointMake(0.f, startY)];
-    /** 左边竖线 */
-    [maskPath addLineToPoint:CGPointMake(0.f, CGRectGetHeight(self.containView.frame) - self.margin - cornerRadii.height)];
-    /** 第二个圆角 */
-    [maskPath addQuadCurveToPoint:CGPointMake(cornerRadii.width, CGRectGetHeight(self.containView.frame) - self.margin) controlPoint:CGPointMake(0.f, CGRectGetHeight(self.containView.frame) - self.margin)];
-    if (self.menuDirection == SPDropMainMenuDirectionTop) {
-        /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x - self.arrowHeight, CGRectGetHeight(self.containView.frame) - self.margin)];
-        /** 尖点 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x, arrowP.y)];
-        /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, CGRectGetHeight(self.containView.frame) - self.margin)];
-    }
-    /** 底部横线 */
-    [maskPath addLineToPoint:CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, CGRectGetHeight(self.containView.frame) - self.margin)];
-    /** 第三个圆角 */
-    [maskPath addQuadCurveToPoint:CGPointMake(CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame) - self.margin - cornerRadii.height) controlPoint:CGPointMake(CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame) - self.margin)];
-    /** 右边竖线 */
-    [maskPath addLineToPoint:CGPointMake(CGRectGetWidth(self.containView.frame), cornerRadii.height + startY)];
-    /** 第四个圆角 */
-    [maskPath addQuadCurveToPoint:CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, startY) controlPoint:CGPointMake(CGRectGetWidth(self.containView.frame), startY)];
+    
+    /** 起始点（尖角点逆时针画图形） */
+    CGPoint point1 = arrowP;
+    /** 2 */
+    CGPoint point2 = CGPointMake(arrowP.x + self.margin, CGRectGetHeight(self.containView.bounds)-self.margin);
+    /** 3 */
+    CGPoint point3 = CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, CGRectGetHeight(self.containView.bounds)-self.margin);
+    /** 4 */
+    CGPoint controlPoint1 = CGPointMake(CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.bounds)-self.margin);
+    CGPoint point4 = CGPointMake(CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.bounds)-self.margin-cornerRadii.height);
+    /** 5 */
+    CGPoint point5 = CGPointMake(CGRectGetWidth(self.containView.frame), cornerRadii.height);
+    /** 6 */
+    CGPoint controlPoint2 = CGPointMake(CGRectGetWidth(self.containView.frame), 0.f);
+    CGPoint point6 = CGPointMake(CGRectGetWidth(self.containView.frame) - cornerRadii.width, 0.f);
+    /** 7 */
+    CGPoint point7 = CGPointMake(cornerRadii.width, 0.f);
+    /** 8 */
+    CGPoint controlPoint3 = CGPointMake(0.f, 0.f);
+    CGPoint point8 = CGPointMake(0.f, cornerRadii.height);
+    /** 9 */
+    CGPoint point9 = CGPointMake(0.f, CGRectGetHeight(self.containView.bounds)-cornerRadii.height-self.margin);
+    /** 10 */
+    CGPoint controlPoint4 = CGPointMake(0.f, CGRectGetHeight(self.containView.bounds)-self.margin);
+    CGPoint point10 = CGPointMake(cornerRadii.width, CGRectGetHeight(self.containView.bounds)-self.margin);
+    /** 11 */
+    CGPoint point11 = CGPointMake(arrowP.x - self.margin, CGRectGetHeight(self.containView.bounds)-self.margin);
+
     if (self.menuDirection == SPDropMainMenuDirectionBottom) {
-        /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x + self.arrowHeight, startY)];
-        /** 尖点 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x, arrowP.y)];
-        /** 画三角形 */
-        [maskPath addLineToPoint:CGPointMake(arrowP.x - self.arrowHeight, startY)];
+        /** 2 */
+        point2 = CGPointMake(arrowP.x - self.margin, self.margin);
+        /** 3 */
+        point3 = CGPointMake(cornerRadii.width, self.margin);
+        /** 4 */
+        controlPoint1 = CGPointMake(0.f, self.margin);
+        point4 = CGPointMake(0.f, self.margin+cornerRadii.height);
+        /** 5 */
+        point5 = CGPointMake(0.f, CGRectGetHeight(self.containView.bounds) - cornerRadii.height);
+        /** 6 */
+        controlPoint2 = CGPointMake(0.f, CGRectGetHeight(self.containView.bounds));
+        point6 = CGPointMake(cornerRadii.width, CGRectGetHeight(self.containView.bounds));
+        /** 7 */
+        point7 = CGPointMake(CGRectGetWidth(self.containView.bounds) - cornerRadii.width, CGRectGetHeight(self.containView.bounds));
+        /** 8 */
+        controlPoint3 = CGPointMake(CGRectGetWidth(self.containView.bounds), CGRectGetHeight(self.containView.bounds));
+        point8 = CGPointMake(CGRectGetWidth(self.containView.bounds), CGRectGetHeight(self.containView.bounds) - cornerRadii.height);
+        /** 9 */
+        point9 = CGPointMake(CGRectGetWidth(self.containView.bounds), self.margin + cornerRadii.height);
+        /** 10 */
+        controlPoint4 = CGPointMake(CGRectGetWidth(self.containView.bounds), self.margin);
+        point10 = CGPointMake(CGRectGetWidth(self.containView.bounds) - cornerRadii.width, self.margin);
+        /** 11 */
+        point11 = CGPointMake(arrowP.x + self.margin, self.margin);
+        
     }
+//    else if (self.menuDirection == SPDropMainMenuDirectionLeft) {
+//        
+//        /** 2 */
+//        point2 = CGPointMake(arrowP.x + self.margin, arrowP.x + self.margin);
+//        /** 3 */
+//        point3 = CGPointMake(arrowP.x + self.margin, CGRectGetHeight(self.containView.bounds) - cornerRadii.height);
+//        /** 4 */
+//        controlPoint1 = CGPointMake(arrowP.x + self.margin, CGRectGetHeight(self.containView.bounds));
+//        point4 = CGPointMake(arrowP.x + self.margin + cornerRadii.width, CGRectGetHeight(self.containView.bounds));
+//        /** 5 */
+//        point5 = CGPointMake(CGRectGetWidth(self.containView.bounds) - cornerRadii.width, CGRectGetHeight(self.containView.bounds));
+//        /** 6 */
+//        controlPoint2 = CGPointMake(CGRectGetWidth(self.containView.bounds), CGRectGetHeight(self.containView.bounds) - cornerRadii.height);
+//        point6 = CGPointMake(CGRectGetWidth(self.containView.bounds), CGRectGetHeight(self.containView.bounds));
+//        /** 7 */
+//        point7 = CGPointMake(CGRectGetWidth(self.containView.bounds), cornerRadii.height);
+//        /** 8 */
+//        controlPoint3 = CGPointMake(CGRectGetWidth(self.containView.bounds), 0.f);
+//        point8 = CGPointMake(CGRectGetWidth(self.containView.bounds) - cornerRadii.width, 0.f);
+//        /** 9 */
+//        point9 = CGPointMake(cornerRadii.width + self.margin + arrowP.x, 0.f);
+//        /** 10 */
+//        controlPoint4 = CGPointMake(self.margin + arrowP.x, self.margin);
+//        point10 = CGPointMake(cornerRadii.width + self.margin + arrowP.x, cornerRadii.height);
+//        /** 11 */
+//        point11 = CGPointMake(arrowP.x + self.margin, arrowP.x - self.margin);
+//
+//    } else if (self.menuDirection == SPDropMainMenuDirectionRight) {
+//        /** 2 */
+//        point2 = CGPointMake(arrowP.x - self.margin, self.margin);
+//        /** 3 */
+//        point3 = CGPointMake(cornerRadii.width, self.margin);
+//        /** 4 */
+//        controlPoint1 = CGPointMake(0.f, self.margin);
+//        point4 = CGPointMake(0.f, self.margin+cornerRadii.height);
+//        /** 5 */
+//        point5 = CGPointMake(0.f, CGRectGetHeight(self.containView.bounds) - cornerRadii.height);
+//        /** 6 */
+//        controlPoint2 = CGPointMake(0.f, CGRectGetHeight(self.containView.bounds));
+//        point6 = CGPointMake(cornerRadii.width, CGRectGetHeight(self.containView.bounds));
+//        /** 7 */
+//        point7 = CGPointMake(CGRectGetWidth(self.containView.bounds) - cornerRadii.width, CGRectGetHeight(self.containView.bounds));
+//        /** 8 */
+//        controlPoint3 = CGPointMake(CGRectGetWidth(self.containView.bounds), CGRectGetHeight(self.containView.bounds));
+//        point8 = CGPointMake(CGRectGetWidth(self.containView.bounds), CGRectGetHeight(self.containView.bounds) - cornerRadii.height);
+//        /** 9 */
+//        point9 = CGPointMake(CGRectGetWidth(self.containView.bounds), self.margin + cornerRadii.height);
+//        /** 10 */
+//        controlPoint4 = CGPointMake(CGRectGetWidth(self.containView.bounds), self.margin);
+//        point10 = CGPointMake(CGRectGetWidth(self.containView.bounds) - cornerRadii.width, self.margin);
+//        /** 11 */
+//        point11 = CGPointMake(arrowP.x + self.margin, self.margin);
+//
+//    }
+    
+    [maskPath moveToPoint:point1];
+    [maskPath addLineToPoint:point2];
+    [maskPath addLineToPoint:point3];
+    [maskPath addQuadCurveToPoint:point4 controlPoint:controlPoint1];
+    [maskPath addLineToPoint:point5];
+    [maskPath addQuadCurveToPoint:point6 controlPoint:controlPoint2];
+    [maskPath addLineToPoint:point7];
+    [maskPath addQuadCurveToPoint:point8 controlPoint:controlPoint3];
+    [maskPath addLineToPoint:point9];
+    [maskPath addQuadCurveToPoint:point10 controlPoint:controlPoint4];
+    [maskPath addLineToPoint:point11];
+
     /** 闭合 */
     [maskPath closePath];
     
@@ -365,10 +456,10 @@
     
     if (self.menuDirection == SPDropMainMenuDirectionTop) {
         self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
-        self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
+        self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin);
     } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
         self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
-        self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin*2);
+        self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin);
     }
         
     [self _drawCircleView];

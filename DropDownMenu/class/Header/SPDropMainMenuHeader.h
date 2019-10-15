@@ -14,7 +14,7 @@ typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
     SPDropMainMenuDirectionAuto = -1,
     SPDropMainMenuDirectionTop = 0,
 //    SPDropMainMenuDirectionLeft,
-    SPDropMainMenuDirectionBottom,
+    SPDropMainMenuDirectionBottom = 2,
 //    SPDropMainMenuDirectionRight,
 };
 
