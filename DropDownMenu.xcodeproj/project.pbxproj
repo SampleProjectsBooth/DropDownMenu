@@ -22,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0517ACA4235596FF0011AAC7 /* SPDropMainMenuHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPDropMainMenuHeader.h; sourceTree = "<group>"; };
 		053885C52317BDC400B23524 /* SPBaseCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPBaseCollectionViewCell.h; sourceTree = "<group>"; };
 		053885C62317BDC400B23524 /* SPBaseCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SPBaseCollectionViewCell.m; sourceTree = "<group>"; };
 		C7CFB3082317A1710085836F /* DropDownMenu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DropDownMenu.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,6 +57,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0517ACA3235596850011AAC7 /* Header */ = {
+			isa = PBXGroup;
+			children = (
+				0517ACA4235596FF0011AAC7 /* SPDropMainMenuHeader.h */,
+			);
+			name = Header;
+			path = DropDownMenu/class/Header;
+			sourceTree = SOURCE_ROOT;
+		};
 		053885C42317BDB700B23524 /* subView */ = {
 			isa = PBXGroup;
 			children = (
@@ -133,6 +143,7 @@
 		C7CFB32B2317A7C70085836F /* main */ = {
 			isa = PBXGroup;
 			children = (
+				0517ACA3235596850011AAC7 /* Header */,
 				053885C42317BDB700B23524 /* subView */,
 				C7CFB3242317A5930085836F /* SPDropMainMenu.h */,
 				C7CFB3252317A5930085836F /* SPDropMainMenu.m */,

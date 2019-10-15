@@ -7,16 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+
 #import "SPDropItem.h"
 
-typedef NS_ENUM(NSUInteger, SPDropMainMenuDirection)
-{
-    SPDropMainMenuDirectionAllTo = -1,
-    SPDropMainMenuDirectionTop = 0,
-//    SPDropMainMenuDirectionLeft,
-    SPDropMainMenuDirectionBottom,
-//    SPDropMainMenuDirectionRight,
-};
+#import "SPDropMainMenuHeader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

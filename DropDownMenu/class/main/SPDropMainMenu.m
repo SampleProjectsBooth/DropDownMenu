@@ -76,12 +76,19 @@
 
 - (void)setMenuDirection:(SPDropMainMenuDirection)menuDirection
 {
-    if (menuDirection == SPDropMainMenuDirectionAllTo) {
+    if (menuDirection == SPDropMainMenuDirectionAuto) {
         menuDirection = SPDropMainMenuDirectionBottom;
     }
     _menuDirection = menuDirection;
 }
 
+- (void)setContainerViewbackgroundColor:(UIColor *)containerViewbackgroundColor
+{
+    if (self.containView) {
+        self.containView.backgroundColor = containerViewbackgroundColor;
+    }
+    _containerViewbackgroundColor = containerViewbackgroundColor;
+}
 #pragma mark - show
 
 /**
@@ -179,6 +186,7 @@
     
     self.backgroundColor = [UIColor clearColor];
     
+    [self _createContainView];
 }
 
 #pragma mark 创建视图
@@ -332,8 +340,6 @@
 - (void)_showFromFrame:(CGRect)frame animated:(BOOL)animated
 {
     
-    [self _createContainView];
-
     [self _calculateItemViews];
 
     self.clipsToBounds = YES;
