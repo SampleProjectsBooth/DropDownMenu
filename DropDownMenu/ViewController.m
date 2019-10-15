@@ -52,7 +52,7 @@
 {
     if (_menuSources == nil) {
         NSMutableArray *array = [NSMutableArray arrayWithCapacity:4];
-        for (NSInteger i=0; i<5; i++) {
+        for (NSInteger i=0; i<10; i++) {
             SPDropItem *item = [[SPDropItem alloc] init];
             item.title = [NSString stringWithFormat:@"测试_%d", (int)i];
             [item setImage:[self iconWithName:@"icon.png"] forState:SPDropItemStateNormal];
@@ -76,28 +76,33 @@
 - (void)singlePressed:(UITapGestureRecognizer *)sender
 {
     CGPoint touchPt = [sender locationInView:self.view];
-    
+    [SPDropMenu setDirection:SPDropMainMenuDirectionAuto];
     [SPDropMenu showFromPoint:touchPt items:[self createMenuSource]];
 }
 
 - (void)leftTopOnClick:(id)sender {
+    [SPDropMenu setDirection:SPDropMainMenuDirectionBottom];
     [SPDropMenu showInView:sender items:[self createMenuSource]];
 }
 
 - (void)rightTopOnClick:(id)sender {
+    [SPDropMenu setDirection:SPDropMainMenuDirectionBottom];
     [SPDropMenu showInView:sender items:[self createMenuSource]];
 }
 
 - (IBAction)leftBottomOnClick:(id)sender {
+    [SPDropMenu setDirection:SPDropMainMenuDirectionTop];
     [SPDropMenu showInView:sender items:[self createMenuSource]];
 }
 
 - (IBAction)rightBottomOnClick:(id)sender {
+    [SPDropMenu setDirection:SPDropMainMenuDirectionTop];
     [SPDropMenu showInView:sender items:[self createMenuSource]];
 }
 
 - (IBAction)testLeftAndTopBottomOnClick:(id)sender
 {
+    [SPDropMenu setDirection:SPDropMainMenuDirectionBottom];
     [SPDropMenu showInView:sender items:[self createMenuSource]];
 }
 #pragma mark - private
