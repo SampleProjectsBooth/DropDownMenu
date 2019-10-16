@@ -105,6 +105,11 @@
     [SPDropMenu setDirection:SPDropMainMenuDirectionBottom];
     [SPDropMenu showInView:sender items:[self createMenuSource]];
 }
+
+- (IBAction)testLeftAndTopBottomOnClick2:(id)sender
+{
+    [self testLeftAndTopBottomOnClick:sender];
+}
 #pragma mark - private
 - (UIImage *)iconWithName:(NSString *)name
 {

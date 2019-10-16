@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  显示位置（上下，默认SPDropMainMenuDirectionBottom）
  */
-@property (nonatomic, assign) SPDropMainMenuDirection menuDirection;
+@property (nonatomic, assign) SPDropMainMenuDirection direction;
 
 /**
  添加数据源

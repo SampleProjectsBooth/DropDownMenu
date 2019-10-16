@@ -75,12 +75,12 @@
     return [self.m_items mutableCopy];
 }
 
-- (void)setMenuDirection:(SPDropMainMenuDirection)menuDirection
+- (void)setDirection:(SPDropMainMenuDirection)direction
 {
-    if (menuDirection == SPDropMainMenuDirectionAuto) {
-        menuDirection = SPDropMainMenuDirectionBottom;
+    if (direction == SPDropMainMenuDirectionAuto) {
+        direction = SPDropMainMenuDirectionBottom;
     }
-    _menuDirection = menuDirection;
+    _direction = direction;
 }
 
 - (void)setContainerViewbackgroundColor:(UIColor *)containerViewbackgroundColor
@@ -145,7 +145,7 @@
 {
     if (animated) {
         CGRect tempRect = self.frame;
-        switch (self.menuDirection) {
+        switch (self.direction) {
             case SPDropMainMenuDirectionTop:
             {
                 tempRect.origin.y += CGRectGetHeight(tempRect);
@@ -183,7 +183,7 @@
     
     _maxItemWidth = 0.f;
     
-    _menuDirection = SPDropMainMenuDirectionBottom;
+    _direction = SPDropMainMenuDirectionBottom;
 
     _containerViewbackgroundColor = [UIColor blackColor];
     
@@ -219,7 +219,7 @@
     CGSize cornerRadii = CGSizeMake(5.f, 5.f);
     
     CGFloat startY = 0.f;
-    if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+    if (self.direction == SPDropMainMenuDirectionBottom) {
         startY = self.arrowHeight;
     }
         
@@ -255,7 +255,7 @@
     /** 11 */
     CGPoint point11 = CGPointMake(arrowP.x - self.margin, CGRectGetHeight(self.containView.bounds)-self.margin);
 
-    if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+    if (self.direction == SPDropMainMenuDirectionBottom) {
         /** 2 */
         point2 = CGPointMake(arrowP.x - self.margin, self.margin);
         /** 3 */
@@ -362,40 +362,45 @@
 #pragma mark 计算出菜单视图大小
 - (CGRect)_calculateMenuViewFrameWithConverFrame:(CGRect)converFrame
 {
+    /** 计算尖角位置 */
+    
     CGRect resultRect = CGRectZero;
     
     resultRect.origin = converFrame.origin;
     
     resultRect.size.width = [self maxItemWidth];
     
-    resultRect.origin.x -= CGRectGetWidth(resultRect)/2;
+    
 
     if (self.displayMaxNum == 0) {
         self.displayMaxNum = self.items.count;
     }
     
     for (NSUInteger i = 0; i < self.displayMaxNum; i ++) {
-        id<SPDropItemProtocol>obj = [self.items objectAtIndex:i];
+            id<SPDropItemProtocol>obj = [self.items objectAtIndex:i];
         resultRect.size.height += (CGRectGetHeight(obj.displayView.frame)+self.margin);
     }
-    
-    resultRect.size.height += (self.arrowHeight + self.margin*2);
+    if (self.direction == SPDropMainMenuDirectionTop || self.direction == SPDropMainMenuDirectionBottom) {
+        resultRect.size.height += (self.arrowHeight + self.margin);
+    } else {
+        resultRect.size.width += (self.margin + self.arrowHeight);
+    }
 
-    if (!self.isShowInView) {
+    if (self.isShowInView) {
         
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            resultRect.origin.y -= CGRectGetHeight(resultRect);
+        resultRect.origin.x = CGRectGetMidX(converFrame)- CGRectGetWidth(resultRect)/2;
+        resultRect.origin.y = CGRectGetMaxY(converFrame);
+        
+        if (self.direction == SPDropMainMenuDirectionTop) {
+            resultRect.origin.y = (CGRectGetMinY(converFrame) - CGRectGetHeight(resultRect));
         }
         
     } else {
         
-        resultRect.origin.y = CGRectGetMaxY(converFrame);
-        resultRect.origin.x = converFrame.origin.x;
-        
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            resultRect.origin.y = (CGRectGetMinY(converFrame) - CGRectGetHeight(resultRect));
+        resultRect.origin.x -= CGRectGetWidth(resultRect)/2;
+        if (self.direction == SPDropMainMenuDirectionTop) {
+            resultRect.origin.y -= CGRectGetHeight(resultRect);
         }
-
     }
     
     if (CGRectGetMinX(resultRect) < self.margin) {
@@ -403,11 +408,7 @@
     }
      
     if (CGRectGetMaxX(resultRect) > (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin)) {
-        if (self.isShowInView) {
-            resultRect.origin.x = CGRectGetMinX(converFrame) - (CGRectGetWidth(resultRect) - CGRectGetWidth(converFrame));
-        } else {
-            resultRect.origin.x = CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin - CGRectGetWidth(resultRect);
-        }
+        resultRect.origin.x = CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin - CGRectGetWidth(resultRect);
     }
     
     
@@ -457,25 +458,32 @@
     self.frame = rect;
     
     CGPoint point = CGPointZero;
-    if (!self.isShowInView) {
-        point = [self convertPoint:frame.origin fromView:[UIApplication sharedApplication].keyWindow];
-        if (CGRectGetMinX(frame) <= self.margin*2) {
-            point.x  = self.margin*2;
-        } else if (CGRectGetMaxX(frame) > (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin*2)) {
-            point.x  -= self.margin*2;
+    if (self.isShowInView) {
+        
+        point = CGPointMake(CGRectGetMidX(frame), CGRectGetMaxY(frame));
+        if (self.direction == SPDropMainMenuDirectionTop) {
+            point = CGPointMake(CGRectGetMidX(frame), CGRectGetMinY(frame));
         }
+        point = [self convertPoint:point fromView:[UIApplication sharedApplication].keyWindow];
+        
     } else {
-        point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMaxY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMinY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
-        }
+        
+        point = [self convertPoint:frame.origin fromView:[UIApplication sharedApplication].keyWindow];
+        
     }
+    
+    if (point.x < self.margin*2) {
+        point.x = self.margin*2;
+    } else if (point.x > (CGRectGetWidth(self.bounds) - self.margin*2)) {
+        point.x = (CGRectGetWidth(self.bounds) - self.margin*2);
+    }
+    
     self.arrowPoint = point;
     
-    if (self.menuDirection == SPDropMainMenuDirectionTop) {
+    if (self.direction == SPDropMainMenuDirectionTop) {
         self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
         self.MyCollectView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin);
-    } else if (self.menuDirection == SPDropMainMenuDirectionBottom) {
+    } else if (self.direction == SPDropMainMenuDirectionBottom) {
         self.containView.frame = CGRectMake(0.f, 0.f, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
         self.MyCollectView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.containView.frame), CGRectGetHeight(self.containView.frame)-self.margin);
     }
@@ -489,7 +497,7 @@
     if (animated) {
         CGRect zeroRect = tempRect;
 
-        switch (self.menuDirection) {
+        switch (self.direction) {
             case SPDropMainMenuDirectionTop:
             {
                 zeroRect.size.height = 0.f;

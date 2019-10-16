@@ -90,7 +90,7 @@ static NSMutableDictionary *_SPDrapMainMenuPropertys;
     }
     value = self.SPDrapMainMenuPropertys[SPDropMainMenu_direction];
     if (value) {
-        dropMainMenu.menuDirection = [value integerValue];
+        dropMainMenu.direction = [value integerValue];
     }
     for (id <SPDropItemProtocol> item in items) {
         [dropMainMenu addItem:item];
