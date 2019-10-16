@@ -9,7 +9,6 @@
 #import "SPDropMainMenu.h"
 #import "SPBaseCollectionViewCell.h"
 
-
 @interface SPDropMainMenu () <UICollectionViewDelegate, UICollectionViewDataSource>
 
 @property (nonatomic, strong) NSMutableArray<id <SPDropItemProtocol>> *m_items;
@@ -27,6 +26,8 @@
 @property (nonatomic, assign) BOOL isShowInView;
 
 @property (nonatomic, assign) CGFloat maxItemWidth;
+
+@property (nonatomic, weak) UIView *bigView;
 
 @end
 
@@ -159,9 +160,11 @@
             self.frame = tempRect;
         } completion:^(BOOL finished) {
             [self removeFromSuperview];
+            [self.bigView removeFromSuperview];
         }];
     } else {
         [self removeFromSuperview];
+        [self.bigView removeFromSuperview];
     }
 }
 
@@ -395,13 +398,16 @@
 
     }
     
-    
     if (CGRectGetMinX(resultRect) < self.margin) {
         resultRect.origin.x = self.margin;
     }
      
     if (CGRectGetMaxX(resultRect) > (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin)) {
-        resultRect.origin.x = (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin - CGRectGetWidth(resultRect));
+        if (self.isShowInView) {
+            resultRect.origin.x = CGRectGetMinX(converFrame) - (CGRectGetWidth(resultRect) - CGRectGetWidth(converFrame));
+        } else {
+            resultRect.origin.x = CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin - CGRectGetWidth(resultRect);
+        }
     }
     
     
@@ -427,32 +433,44 @@
         }
     }
 }
+
+
 #pragma mark 展示视图
 - (void)_showFromFrame:(CGRect)frame animated:(BOOL)animated
 {
     
     [self _calculateItemViews];
 
+    UIView *view = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    view.backgroundColor = [UIColor clearColor];
+    [[UIApplication sharedApplication].keyWindow addSubview:view];
+    self.bigView = view;
+    UITapGestureRecognizer *tapGe = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismiss)];
+    [self.bigView addGestureRecognizer:tapGe];
+    
     self.clipsToBounds = YES;
         
-    [[UIApplication sharedApplication].keyWindow addSubview:self];
+    [self.bigView addSubview:self];
     
     CGRect rect = [self _calculateMenuViewFrameWithConverFrame:frame];
     
     self.frame = rect;
-
-    if (CGSizeEqualToSize(frame.size, CGSizeZero)) {
-        self.arrowPoint = CGPointMake(CGRectGetWidth(rect)/2, 0.f);
-        if (self.menuDirection == SPDropMainMenuDirectionTop) {
-            self.arrowPoint = CGPointMake(CGRectGetWidth(rect)/2, CGRectGetHeight(self.frame));
+    
+    CGPoint point = CGPointZero;
+    if (!self.isShowInView) {
+        point = [self convertPoint:frame.origin fromView:[UIApplication sharedApplication].keyWindow];
+        if (CGRectGetMinX(frame) <= self.margin*2) {
+            point.x  = self.margin*2;
+        } else if (CGRectGetMaxX(frame) > (CGRectGetWidth([UIScreen mainScreen].bounds) - self.margin*2)) {
+            point.x  -= self.margin*2;
         }
     } else {
-        CGPoint point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMaxY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
+        point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMaxY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
         if (self.menuDirection == SPDropMainMenuDirectionTop) {
             point = [self convertPoint:CGPointMake(CGRectGetMidX(frame), CGRectGetMinY(frame)) fromView:[UIApplication sharedApplication].keyWindow];
         }
-        self.arrowPoint = point;
     }
+    self.arrowPoint = point;
     
     if (self.menuDirection == SPDropMainMenuDirectionTop) {
         self.containView.frame = CGRectMake(0.f, self.margin, CGRectGetWidth(self.frame), CGRectGetHeight(self.frame)-self.margin);
