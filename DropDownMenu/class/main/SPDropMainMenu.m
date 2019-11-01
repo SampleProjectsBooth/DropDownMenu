@@ -9,7 +9,7 @@
 #import "SPDropMainMenu.h"
 #import "SPBaseCollectionViewCell.h"
 
-@interface SPDropMainMenu () <UICollectionViewDelegate, UICollectionViewDataSource>
+@interface SPDropMainMenu () <UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NSMutableArray<id <SPDropItemProtocol>> *m_items;
 
@@ -447,6 +447,7 @@
     [[UIApplication sharedApplication].keyWindow addSubview:view];
     self.bigView = view;
     UITapGestureRecognizer *tapGe = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismiss)];
+    tapGe.delegate = self;
     [self.bigView addGestureRecognizer:tapGe];
     
     self.clipsToBounds = YES;
@@ -526,6 +527,17 @@
             [self.MyCollectView scrollToItemAtIndexPath:indexPath atScrollPosition:(UICollectionViewScrollPositionTop) animated:NO];
         }
     }
+}
+
+#pragma mark - UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    CGPoint point = [gestureRecognizer locationInView:self.bigView];
+    CGRect rect = [self convertRect:self.MyCollectView.frame toView:self.bigView];
+    if (CGRectContainsPoint(rect, point)) {
+        return NO;
+    }
+    return YES;
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout
